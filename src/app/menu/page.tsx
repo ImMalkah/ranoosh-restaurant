@@ -33,10 +33,22 @@ export default async function MenuPage() {
     console.error(itemError);
   }
 
+  // Fetch addons
+  const { data: addons, error: addonError } = await supabase
+    .from('menu_item_addons')
+    .select('*');
+
+  if (addonError) {
+    console.error(addonError);
+  }
+
   // Group items by category
   const menuData = categories?.map((cat) => ({
     category: cat.name,
-    items: items?.filter((item) => item.category_id === cat.id) || [],
+    items: items?.filter((item) => item.category_id === cat.id).map(item => ({
+      ...item,
+      addons: addons?.filter(a => a.item_id === item.id) || []
+    })) || [],
   })) || [];
 
   return (

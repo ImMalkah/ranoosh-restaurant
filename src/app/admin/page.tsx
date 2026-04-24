@@ -24,6 +24,7 @@ export default function AdminDashboard() {
   const [categoryId, setCategoryId] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [addons, setAddons] = useState<{id?: string, title: string, price: string}[]>([])
   
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -45,7 +46,7 @@ export default function AdminDashboard() {
     }
 
     const [itemsRes, catsRes, profsRes] = await Promise.all([
-      supabase.from('menu_items').select('*').order('category_id').order('order_index'),
+      supabase.from('menu_items').select('*, menu_item_addons(*)').order('category_id').order('order_index'),
       supabase.from('menu_categories').select('*').order('order_index'),
       supabase.from('profiles').select('*').order('created_at', { ascending: false })
     ])
@@ -92,6 +93,7 @@ export default function AdminDashboard() {
     setDescription('')
     if (categories.length > 0) setCategoryId(categories[0].id)
     setImageFile(null)
+    setAddons([])
     if (fileInputRef.current) fileInputRef.current.value = ''
     setShowModal(true)
   }
@@ -103,8 +105,34 @@ export default function AdminDashboard() {
     setDescription(item.description || '')
     setCategoryId(item.category_id)
     setImageFile(null)
+    setAddons(item.menu_item_addons || [])
     if (fileInputRef.current) fileInputRef.current.value = ''
     setShowModal(true)
+  }
+
+  const handleAddAddon = () => setAddons([...addons, { title: '', price: '' }])
+  const handleRemoveAddon = (index: number) => setAddons(addons.filter((_, i) => i !== index))
+  const handleUpdateAddon = (index: number, field: string, value: string) => {
+    const newAddons = [...addons]
+    newAddons[index] = { ...newAddons[index], [field]: value }
+    setAddons(newAddons)
+  }
+
+  const formatPriceString = (val: string) => {
+    if (!val) return val
+    const numericVal = parseFloat(val.replace(/[^0-9.]/g, ''))
+    if (isNaN(numericVal)) return val
+    
+    const hasPlus = val.trim().startsWith('+')
+    return `${hasPlus ? '+' : ''}$${numericVal.toFixed(2)}`
+  }
+
+  const handlePriceBlur = () => setPrice(formatPriceString(price))
+  
+  const handleAddonPriceBlur = (index: number) => {
+    const newAddons = [...addons]
+    newAddons[index].price = formatPriceString(newAddons[index].price)
+    setAddons(newAddons)
   }
 
   const handleSaveItem = async (e: React.FormEvent) => {
@@ -139,10 +167,21 @@ export default function AdminDashboard() {
       image_url: imageUrl
     }
 
+    let itemId = editingItem?.id
     if (editingItem) {
       await supabase.from('menu_items').update(payload).eq('id', editingItem.id)
     } else {
-      await supabase.from('menu_items').insert(payload)
+      const { data, error } = await supabase.from('menu_items').insert(payload).select().single()
+      if (data) itemId = data.id
+    }
+
+    if (itemId) {
+      await supabase.from('menu_item_addons').delete().eq('item_id', itemId)
+      const validAddons = addons.filter(a => a.title.trim() !== '')
+      if (validAddons.length > 0) {
+        const addonsToInsert = validAddons.map(a => ({ item_id: itemId, title: a.title, price: a.price || '' }))
+        await supabase.from('menu_item_addons').insert(addonsToInsert)
+      }
     }
 
     setShowModal(false)
@@ -302,7 +341,7 @@ export default function AdminDashboard() {
               </div>
               <div className={styles.formGroup}>
                 <label>Price</label>
-                <input type="text" value={price} onChange={e => setPrice(e.target.value)} required placeholder="$0.00" />
+                <input type="text" value={price} onChange={e => setPrice(e.target.value)} onBlur={handlePriceBlur} required placeholder="$0.00" />
               </div>
               <div className={styles.formGroup}>
                 <label>Description (Optional)</label>
@@ -324,6 +363,18 @@ export default function AdminDashboard() {
                 )}
               </div>
               
+              <div className={styles.formGroup}>
+                <label>Add-ons (Optional)</label>
+                {addons.map((addon, index) => (
+                  <div key={index} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <input type="text" placeholder="Title (e.g. Add Extra Chicken)" value={addon.title} onChange={e => handleUpdateAddon(index, 'title', e.target.value)} style={{ flex: 1 }} />
+                    <input type="text" placeholder="Price (e.g. +$2.99)" value={addon.price} onChange={e => handleUpdateAddon(index, 'price', e.target.value)} onBlur={() => handleAddonPriceBlur(index)} style={{ width: '120px' }} />
+                    <button type="button" onClick={() => handleRemoveAddon(index)} className={styles.dangerBtn}>X</button>
+                  </div>
+                ))}
+                <button type="button" onClick={handleAddAddon} className={styles.actionBtn} style={{ width: 'fit-content', marginTop: '0.25rem' }}>+ Add Add-on</button>
+              </div>
+
               <div className={styles.modalActions}>
                 <button type="button" onClick={() => setShowModal(false)} className={styles.cancelBtn}>Cancel</button>
                 <button type="submit" disabled={isSaving} className={styles.primaryBtn}>{isSaving ? 'Saving...' : 'Save Item'}</button>

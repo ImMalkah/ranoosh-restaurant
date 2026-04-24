@@ -11,6 +11,7 @@ interface MenuItemProps {
     description: string;
     price: string;
     image?: string;
+    addons?: { id: string, title: string, price: string }[];
   };
 }
 
@@ -44,6 +45,16 @@ export default function MenuItemCard({ item }: MenuItemProps) {
             <span className={styles.itemPrice}>{item.price}</span>
           </div>
           {item.description && <p className={styles.itemDescription}>{item.description}</p>}
+          {item.addons && item.addons.length > 0 && (
+            <div style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              {item.addons.map(addon => (
+                <div key={addon.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginTop: '0.25rem' }}>
+                  <span>+ {addon.title}</span>
+                  <span>{addon.price}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
