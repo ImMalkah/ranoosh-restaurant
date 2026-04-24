@@ -26,6 +26,10 @@ export default function AdminDashboard() {
   const [isSaving, setIsSaving] = useState(false)
   const [addons, setAddons] = useState<{id?: string, title: string, price: string}[]>([])
   
+  const [currentHeroImage, setCurrentHeroImage] = useState<string>('/hero-bg.png')
+  const [heroImageFile, setHeroImageFile] = useState<File | null>(null)
+  const [isSavingHero, setIsSavingHero] = useState(false)
+  
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const supabase = createClient()
@@ -45,11 +49,14 @@ export default function AdminDashboard() {
       return
     }
 
-    const [itemsRes, catsRes, profsRes] = await Promise.all([
+    const [itemsRes, catsRes, profsRes, settingsRes] = await Promise.all([
       supabase.from('menu_items').select('*, menu_item_addons(*)').order('category_id').order('order_index'),
       supabase.from('menu_categories').select('*').order('order_index'),
-      supabase.from('profiles').select('*').order('created_at', { ascending: false })
+      supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+      supabase.from('site_settings').select('value').eq('key', 'hero_image_url').maybeSingle()
     ])
+
+    if (settingsRes.data) setCurrentHeroImage(settingsRes.data.value)
 
     if (itemsRes.data) setItems(itemsRes.data)
     if (catsRes.data) {
@@ -133,6 +140,31 @@ export default function AdminDashboard() {
     const newAddons = [...addons]
     newAddons[index].price = formatPriceString(newAddons[index].price)
     setAddons(newAddons)
+  }
+
+  const handleSaveHeroImage = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!heroImageFile) return
+    setIsSavingHero(true)
+
+    const fileExt = heroImageFile.name.split('.').pop()
+    const fileName = `hero_${Date.now()}.${fileExt}`
+    const { error: uploadError } = await supabase.storage.from('menu_images').upload(fileName, heroImageFile)
+
+    if (uploadError) {
+      alert('Failed to upload hero image')
+      setIsSavingHero(false)
+      return
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from('menu_images').getPublicUrl(fileName)
+    
+    await supabase.from('site_settings').upsert({ key: 'hero_image_url', value: publicUrl })
+    
+    setCurrentHeroImage(publicUrl)
+    setHeroImageFile(null)
+    setIsSavingHero(false)
+    alert('Hero image updated successfully!')
   }
 
   const handleSaveItem = async (e: React.FormEvent) => {
@@ -235,6 +267,7 @@ export default function AdminDashboard() {
         <button className={activeTab === 'menu' ? styles.activeTab : styles.tab} onClick={() => setActiveTab('menu')}>Menu Items</button>
         <button className={activeTab === 'categories' ? styles.activeTab : styles.tab} onClick={() => setActiveTab('categories')}>Categories</button>
         <button className={activeTab === 'users' ? styles.activeTab : styles.tab} onClick={() => setActiveTab('users')}>Access Requests</button>
+        <button className={activeTab === 'settings' ? styles.activeTab : styles.tab} onClick={() => setActiveTab('settings')}>Site Settings</button>
       </div>
 
       <div className={styles.content}>
@@ -326,6 +359,24 @@ export default function AdminDashboard() {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className={styles.section}>
+            <h2>Site Settings</h2>
+            <form onSubmit={handleSaveHeroImage} className={styles.form} style={{ maxWidth: '500px' }}>
+              <div className={styles.formGroup}>
+                <label>Hero Image</label>
+                {currentHeroImage && (
+                  <img src={currentHeroImage} alt="Current Hero" className={styles.thumb} style={{ width: '100%', height: 'auto', maxHeight: '200px', objectFit: 'cover', marginBottom: '1rem', borderRadius: '8px' }} />
+                )}
+                <input type="file" accept="image/*" onChange={e => setHeroImageFile(e.target.files ? e.target.files[0] : null)} required />
+              </div>
+              <button type="submit" disabled={isSavingHero || !heroImageFile} className={styles.primaryBtn} style={{ marginTop: '1rem' }}>
+                {isSavingHero ? 'Saving...' : 'Update Hero Image'}
+              </button>
+            </form>
           </div>
         )}
       </div>

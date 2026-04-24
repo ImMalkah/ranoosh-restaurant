@@ -1,10 +1,17 @@
 import styles from "./page.module.css";
 import Link from 'next/link';
+import { createClient } from '@/utils/supabase/server';
 
-export default function Home() {
+export const revalidate = 0;
+
+export default async function Home() {
+  const supabase = await createClient();
+  const { data } = await supabase.from('site_settings').select('value').eq('key', 'hero_image_url').single();
+  const heroImage = data?.value || '/hero-bg.png';
+
   return (
     <div className={styles.main}>
-      <section className={styles.hero}>
+      <section className={styles.hero} style={{ background: `linear-gradient(rgba(13, 14, 18, 0.7), rgba(13, 14, 18, 0.9)), url('${heroImage}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div className={styles.heroContent}>
           <h1 className={styles.title}>RANOOSH</h1>
           <p className={styles.subtitle}>Modern Middle Eastern Dining & Lounge</p>

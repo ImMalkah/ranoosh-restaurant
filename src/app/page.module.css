@@ -10,9 +10,6 @@
   align-items: center;
   text-align: center;
   padding: 2rem;
-  background: linear-gradient(rgba(13, 14, 18, 0.7), rgba(13, 14, 18, 0.9)), url('/hero-bg.png');
-  background-size: cover;
-  background-position: center;
   position: relative;
   overflow: hidden;
 }
