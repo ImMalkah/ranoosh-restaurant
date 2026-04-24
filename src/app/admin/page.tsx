@@ -11,6 +11,7 @@ export default function AdminDashboard() {
   const [categories, setCategories] = useState<any[]>([])
   const [profiles, setProfiles] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [sortConfig, setSortConfig] = useState({ key: '', direction: '' })
   
   // Modal state
   const [showModal, setShowModal] = useState(false)
@@ -149,6 +150,39 @@ export default function AdminDashboard() {
     fetchData()
   }
 
+  const handleSort = (key: string) => {
+    let direction = 'asc'
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc'
+    }
+    setSortConfig({ key, direction })
+  }
+
+  const sortedItems = [...items].sort((a, b) => {
+    if (!sortConfig.key) return 0
+
+    let aValue = a[sortConfig.key]
+    let bValue = b[sortConfig.key]
+
+    if (sortConfig.key === 'category') {
+      const aCat = categories.find(c => c.id === a.category_id)?.name || ''
+      const bCat = categories.find(c => c.id === b.category_id)?.name || ''
+      aValue = aCat
+      bValue = bCat
+    } else if (sortConfig.key === 'price') {
+      aValue = parseFloat(a.price.replace(/[^0-9.-]+/g,"")) || 0
+      bValue = parseFloat(b.price.replace(/[^0-9.-]+/g,"")) || 0
+    }
+
+    if (aValue < bValue) {
+      return sortConfig.direction === 'asc' ? -1 : 1
+    }
+    if (aValue > bValue) {
+      return sortConfig.direction === 'asc' ? 1 : -1
+    }
+    return 0
+  })
+
   if (loading) return <div className={styles.container}>Loading dashboard...</div>
 
   return (
@@ -205,14 +239,20 @@ export default function AdminDashboard() {
               <thead>
                 <tr>
                   <th>Photo</th>
-                  <th>Title</th>
-                  <th>Price</th>
-                  <th>Category</th>
+                  <th onClick={() => handleSort('title')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                    Title {sortConfig.key === 'title' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                  </th>
+                  <th onClick={() => handleSort('price')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                    Price {sortConfig.key === 'price' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                  </th>
+                  <th onClick={() => handleSort('category')} style={{ cursor: 'pointer', userSelect: 'none' }}>
+                    Category {sortConfig.key === 'category' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                  </th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {items.map(item => {
+                {sortedItems.map(item => {
                   const cat = categories.find(c => c.id === item.category_id)
                   return (
                     <tr key={item.id}>
