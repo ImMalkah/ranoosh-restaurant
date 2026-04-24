@@ -56,7 +56,7 @@
 }
 
 .about {
-  padding: 6rem 2rem;
+  padding: 6rem 2rem 2rem 2rem;
   background: var(--background);
   text-align: center;
   max-width: 900px;

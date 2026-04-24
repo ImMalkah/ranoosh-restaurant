@@ -1,6 +1,7 @@
 import styles from "./page.module.css";
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/server';
+import Reviews from '@/components/Reviews';
 
 export const revalidate = 0;
 
@@ -27,6 +28,8 @@ export default async function Home() {
           Step into Ranoosh and immerse yourself in an ambiance where modern dining meets the rich heritage of the Middle East. Experience our extensive menu featuring deeply flavorful shawarmas, authentic kabab combination plates, comforting appetizers, and an array of indulgent desserts like Kunafe and premium Cheesecake. After your meal, unwind in our sophisticated lounge over our shisha selection and refreshing signature drinks.
         </p>
       </section>
+
+      <Reviews />
     </div>
   );
 }
