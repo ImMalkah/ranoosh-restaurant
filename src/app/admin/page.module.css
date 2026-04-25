@@ -157,6 +157,42 @@
   text-transform: uppercase;
 }
 
+.badge-reviewed {
+  background: rgba(23, 162, 184, 0.2);
+  color: #17a2b8;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.badge-contacted {
+  background: rgba(111, 66, 193, 0.2);
+  color: #d8b4e2;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.badge-agreed {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.badge-fulfilled {
+  background: rgba(108, 117, 125, 0.2);
+  color: #ced4da;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
 .list {
   list-style: none;
   padding: 0;

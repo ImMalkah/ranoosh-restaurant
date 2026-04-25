@@ -637,9 +637,9 @@ export default function AdminDashboard() {
                   <label>Add-ons</label>
                   {addons.map((addon, index) => (
                     <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                      <input type="text" placeholder="Addon title" value={addon.title} onChange={e => handleUpdateAddon(index, 'title', e.target.value)} style={{ flex: 2 }} />
-                      <input type="text" placeholder="Price (e.g. +1.50)" value={addon.price} onChange={e => handleUpdateAddon(index, 'price', e.target.value)} onBlur={() => handleAddonPriceBlur(index)} style={{ flex: 1 }} />
-                      <button type="button" onClick={() => handleRemoveAddon(index)} className={styles.dangerBtn}>Remove</button>
+                      <input type="text" placeholder="Addon title" value={addon.title} onChange={e => handleUpdateAddon(index, 'title', e.target.value)} style={{ flex: 2, minWidth: 0 }} />
+                      <input type="text" placeholder="Price (e.g. +1.50)" value={addon.price} onChange={e => handleUpdateAddon(index, 'price', e.target.value)} onBlur={() => handleAddonPriceBlur(index)} style={{ flex: 1, minWidth: 0 }} />
+                      <button type="button" onClick={() => handleRemoveAddon(index)} className={styles.dangerBtn} style={{ whiteSpace: 'nowrap' }}>Remove</button>
                     </div>
                   ))}
                   <button type="button" onClick={handleAddAddon} className={styles.actionBtn}>+ Add Add-on</button>

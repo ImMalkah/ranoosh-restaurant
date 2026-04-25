@@ -36,7 +36,14 @@ export default function MenuItemCard({ item }: MenuItemProps) {
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
-            <div className={styles.placeholderImage} style={{ background: 'linear-gradient(45deg, #15161c, #2a2a35)' }} />
+            <Image 
+              src="/placeholder.png" 
+              alt={`${item.title} Coming Soon`} 
+              fill 
+              style={{ objectFit: 'cover' }} 
+              className={styles.placeholderImage} 
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
           )}
         </div>
         <div className={styles.itemContent}>
