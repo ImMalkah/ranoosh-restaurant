@@ -50,21 +50,21 @@ export default function CateringItemCard({ item }: CateringItemProps) {
       <div className={styles.menuItem}>
         <div className={styles.mediaContainer}>
           {item.image_url ? (
-            <Image 
-              src={item.image_url} 
-              alt={item.title} 
-              fill 
-              style={{ objectFit: 'contain', padding: '1rem' }} 
-              className={styles.placeholderImage} 
+            <Image
+              src={item.image_url}
+              alt={item.title}
+              fill
+              style={{ objectFit: 'contain', padding: '1rem' }}
+              className={styles.placeholderImage}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
-            <Image 
-              src="/placeholder.png" 
-              alt={`${item.title} Coming Soon`} 
-              fill 
-              style={{ objectFit: 'cover' }} 
-              className={styles.placeholderImage} 
+            <Image
+              src="/placeholder.png"
+              alt={`${item.title} Coming Soon`}
+              fill
+              style={{ objectFit: 'cover' }}
+              className={styles.placeholderImage}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           )}
@@ -74,16 +74,16 @@ export default function CateringItemCard({ item }: CateringItemProps) {
             <h3 className={styles.itemTitle}>{item.title}</h3>
           </div>
           {item.description && <p className={styles.itemDescription}>{item.description}</p>}
-          <button 
-            onClick={() => setShowOptions(true)} 
-            style={{ 
-              marginTop: '1rem', 
-              padding: '0.5rem 1rem', 
-              background: 'var(--primary-gold)', 
-              color: 'black', 
-              border: 'none', 
-              borderRadius: '4px', 
-              cursor: 'pointer', 
+          <button
+            onClick={() => setShowOptions(true)}
+            style={{
+              marginTop: '1rem',
+              padding: '0.5rem 1rem',
+              background: 'var(--primary-gold)',
+              color: 'black',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
               fontWeight: 'bold',
               width: '100%'
             }}
@@ -98,10 +98,10 @@ export default function CateringItemCard({ item }: CateringItemProps) {
           <div style={{ background: 'var(--panel-bg)', padding: '2rem', borderRadius: '12px', width: '100%', maxWidth: '500px', position: 'relative' }} onClick={e => e.stopPropagation()}>
             <button onClick={() => setShowOptions(false)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
             <h3 style={{ color: 'var(--primary-gold)', marginBottom: '1.5rem' }}>Inquire about {item.title}</h3>
-            
+
             {!showEmailForm ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <a href="tel:+11234567890" style={{ display: 'block', padding: '1rem', background: 'rgba(255,255,255,0.05)', color: 'white', textAlign: 'center', borderRadius: '8px', textDecoration: 'none' }}>📞 Call Us: (123) 456-7890</a>
+                <a href="tel:+19052966962" style={{ display: 'block', padding: '1rem', background: 'rgba(255,255,255,0.05)', color: 'white', textAlign: 'center', borderRadius: '8px', textDecoration: 'none' }}>📞 Call Us: (905) 296-6962</a>
                 <Link href="/#about" onClick={() => setShowOptions(false)} style={{ display: 'block', padding: '1rem', background: 'rgba(255,255,255,0.05)', color: 'white', textAlign: 'center', borderRadius: '8px', textDecoration: 'none' }}>📍 Visit Our Location</Link>
                 <button onClick={() => setShowEmailForm(true)} style={{ padding: '1rem', background: 'var(--primary-gold)', color: 'black', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '1rem', fontWeight: 'bold' }}>✉️ Email Us</button>
               </div>
