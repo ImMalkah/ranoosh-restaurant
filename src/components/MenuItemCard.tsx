@@ -31,7 +31,7 @@ export default function MenuItemCard({ item }: MenuItemProps) {
               src={item.image} 
               alt={item.title} 
               fill 
-              style={{ objectFit: 'contain', padding: '1rem' }} 
+              style={{ objectFit: 'cover' }} 
               className={styles.placeholderImage} 
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
