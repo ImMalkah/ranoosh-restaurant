@@ -35,6 +35,18 @@ export default function AdminDashboard() {
   const [heroImageFile, setHeroImageFile] = useState<File | null>(null)
   const [isSavingHero, setIsSavingHero] = useState(false)
   
+  const [navbarLogo, setNavbarLogo] = useState<string>('')
+  const [navbarLogoFile, setNavbarLogoFile] = useState<File | null>(null)
+  const [isSavingLogo, setIsSavingLogo] = useState(false)
+  
+  const [cateringHeroImage, setCateringHeroImage] = useState<string>('/catering-hero.jpg')
+  const [cateringVideo, setCateringVideo] = useState<string>('/catering-video.mp4')
+  const [cateringText, setCateringText] = useState<string>("Whether it's a family gathering, wedding, or corporate event, we prepare fresh, flavorful dishes that bring people together. Enjoy the taste of tradition with every bite.")
+  const [cateringArabicText, setCateringArabicText] = useState<string>("مستعدون لتجهيز جميع المناسبات\nأكلات عراقية أصيلة، منسف القوزي و الدولمة والتبولة إلى المشاوي وطبعا المسكوف العراقي والأطباق الرئيسية\nللطلب والاستفسار: تواصل ويانا")
+  const [cateringHeroFile, setCateringHeroFile] = useState<File | null>(null)
+  const [cateringVideoFile, setCateringVideoFile] = useState<File | null>(null)
+  const [isSavingCateringSettings, setIsSavingCateringSettings] = useState(false)
+  
   const [newMenuCategory, setNewMenuCategory] = useState('')
   const [newCateringCategory, setNewCateringCategory] = useState('')
   
@@ -64,13 +76,31 @@ export default function AdminDashboard() {
       supabase.from('menu_items').select('*, menu_item_addons(*)').order('category_id').order('order_index'),
       supabase.from('menu_categories').select('*').order('order_index'),
       supabase.from('profiles').select('*').order('created_at', { ascending: false }),
-      supabase.from('site_settings').select('value').eq('key', 'hero_image_url').maybeSingle(),
+      supabase.from('site_settings').select('key, value'),
       supabase.from('catering_items').select('*').order('category_id').order('order_index'),
       supabase.from('catering_categories').select('*').order('order_index'),
       supabase.from('inquiries').select('*').order('created_at', { ascending: false })
     ])
 
-    if (settingsRes.data) setCurrentHeroImage(settingsRes.data.value)
+    if (settingsRes.data) {
+      const hero = settingsRes.data.find((s: any) => s.key === 'hero_image_url')
+      if (hero) setCurrentHeroImage(hero.value)
+      
+      const cHero = settingsRes.data.find((s: any) => s.key === 'catering_hero_image')
+      if (cHero) setCateringHeroImage(cHero.value)
+      
+      const cVid = settingsRes.data.find((s: any) => s.key === 'catering_video')
+      if (cVid) setCateringVideo(cVid.value)
+      
+      const cText = settingsRes.data.find((s: any) => s.key === 'catering_text')
+      if (cText) setCateringText(cText.value)
+      
+      const cArText = settingsRes.data.find((s: any) => s.key === 'catering_arabic_text')
+      if (cArText) setCateringArabicText(cArText.value)
+      
+      const logo = settingsRes.data.find((s: any) => s.key === 'navbar_logo')
+      if (logo) setNavbarLogo(logo.value)
+    }
     if (itemsRes.data) setItems(itemsRes.data)
     if (catsRes.data) {
       setCategories(catsRes.data)
@@ -226,6 +256,73 @@ export default function AdminDashboard() {
     const newAddons = [...addons]
     newAddons[index].price = formatPriceString(newAddons[index].price)
     setAddons(newAddons)
+  }
+
+  const handleSaveCateringSettings = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSavingCateringSettings(true)
+
+    let finalImageUrl = cateringHeroImage
+    let finalVideoUrl = cateringVideo
+
+    if (cateringHeroFile) {
+      const fileExt = cateringHeroFile.name.split('.').pop()
+      const fileName = `catering_hero_${Date.now()}.${fileExt}`
+      const { error } = await supabase.storage.from('menu_images').upload(fileName, cateringHeroFile)
+      if (!error) {
+        const { data } = supabase.storage.from('menu_images').getPublicUrl(fileName)
+        finalImageUrl = data.publicUrl
+      }
+    }
+
+    if (cateringVideoFile) {
+      const fileExt = cateringVideoFile.name.split('.').pop()
+      const fileName = `catering_video_${Date.now()}.${fileExt}`
+      const { error } = await supabase.storage.from('menu_images').upload(fileName, cateringVideoFile)
+      if (!error) {
+        const { data } = supabase.storage.from('menu_images').getPublicUrl(fileName)
+        finalVideoUrl = data.publicUrl
+      }
+    }
+
+    await supabase.from('site_settings').upsert([
+      { key: 'catering_hero_image', value: finalImageUrl },
+      { key: 'catering_video', value: finalVideoUrl },
+      { key: 'catering_text', value: cateringText },
+      { key: 'catering_arabic_text', value: cateringArabicText },
+    ])
+
+    setCateringHeroImage(finalImageUrl)
+    setCateringVideo(finalVideoUrl)
+    setCateringHeroFile(null)
+    setCateringVideoFile(null)
+    setIsSavingCateringSettings(false)
+    alert('Catering settings updated successfully!')
+  }
+
+  const handleSaveNavbarLogo = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!navbarLogoFile) return
+    setIsSavingLogo(true)
+
+    const fileExt = navbarLogoFile.name.split('.').pop()
+    const fileName = `navbar_logo_${Date.now()}.${fileExt}`
+    const { error: uploadError } = await supabase.storage.from('menu_images').upload(fileName, navbarLogoFile)
+
+    if (uploadError) {
+      alert('Failed to upload logo image')
+      setIsSavingLogo(false)
+      return
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from('menu_images').getPublicUrl(fileName)
+    
+    await supabase.from('site_settings').upsert({ key: 'navbar_logo', value: publicUrl })
+    
+    setNavbarLogo(publicUrl)
+    setNavbarLogoFile(null)
+    setIsSavingLogo(false)
+    alert('Navbar logo updated successfully!')
   }
 
   const handleSaveHeroImage = async (e: React.FormEvent) => {
@@ -454,6 +551,39 @@ export default function AdminDashboard() {
         {activeTab === 'catering' && (
           <div className={styles.section}>
             <div className={styles.sectionHeader}>
+              <h2>Catering Settings</h2>
+            </div>
+            <form onSubmit={handleSaveCateringSettings} className={styles.form} style={{ maxWidth: '800px', marginBottom: '3rem', padding: '1.5rem', background: '#1a1a24', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                <div className={styles.formGroup}>
+                  <label>Hero Image</label>
+                  {cateringHeroImage && (
+                    <img src={cateringHeroImage} alt="Catering Hero" className={styles.thumb} style={{ width: '100%', height: '120px', objectFit: 'cover', marginBottom: '1rem', borderRadius: '8px' }} />
+                  )}
+                  <input type="file" accept="image/*" onChange={e => setCateringHeroFile(e.target.files ? e.target.files[0] : null)} />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Video (MP4)</label>
+                  {cateringVideo && (
+                    <video src={cateringVideo} className={styles.thumb} style={{ width: '100%', height: '120px', objectFit: 'cover', marginBottom: '1rem', borderRadius: '8px' }} muted />
+                  )}
+                  <input type="file" accept="video/mp4,video/*" onChange={e => setCateringVideoFile(e.target.files ? e.target.files[0] : null)} />
+                </div>
+              </div>
+              <div className={styles.formGroup}>
+                <label>English Text</label>
+                <textarea value={cateringText} onChange={e => setCateringText(e.target.value)} rows={3} placeholder="Whether it's a family gathering..." />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Arabic Text</label>
+                <textarea value={cateringArabicText} onChange={e => setCateringArabicText(e.target.value)} rows={3} dir="rtl" placeholder="مستعدون لتجهيز..." />
+              </div>
+              <button type="submit" disabled={isSavingCateringSettings} className={styles.primaryBtn}>
+                {isSavingCateringSettings ? 'Saving...' : 'Save Catering Settings'}
+              </button>
+            </form>
+
+            <div className={styles.sectionHeader}>
               <h2>Catering Items</h2>
               <button onClick={openAddCateringModal} className={styles.primaryBtn}>Add Catering Item</button>
             </div>
@@ -563,6 +693,20 @@ export default function AdminDashboard() {
         {activeTab === 'settings' && (
           <div className={styles.section}>
             <h2>Site Settings</h2>
+            
+            <form onSubmit={handleSaveNavbarLogo} className={styles.form} style={{ maxWidth: '500px', marginBottom: '3rem' }}>
+              <div className={styles.formGroup}>
+                <label>Navbar Logo</label>
+                {navbarLogo && (
+                  <img src={navbarLogo} alt="Navbar Logo" className={styles.thumb} style={{ width: 'auto', height: '50px', objectFit: 'contain', marginBottom: '1rem', background: '#000', padding: '10px', borderRadius: '8px' }} />
+                )}
+                <input type="file" accept="image/*" onChange={e => setNavbarLogoFile(e.target.files ? e.target.files[0] : null)} required />
+              </div>
+              <button type="submit" disabled={isSavingLogo || !navbarLogoFile} className={styles.primaryBtn} style={{ marginTop: '1rem' }}>
+                {isSavingLogo ? 'Saving...' : 'Update Navbar Logo'}
+              </button>
+            </form>
+
             <form onSubmit={handleSaveHeroImage} className={styles.form} style={{ maxWidth: '500px' }}>
               <div className={styles.formGroup}>
                 <label>Hero Image</label>

@@ -14,7 +14,7 @@ export default async function Home() {
     <div className={styles.main}>
       <section className={styles.hero} style={{ background: `linear-gradient(rgba(13, 14, 18, 0.7), rgba(13, 14, 18, 0.9)), url('${heroImage}')`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div className={styles.heroContent}>
-          <h1 className={styles.title}>RANOOSH</h1>
+          <h1 className={styles.title}>RANNOSH</h1>
           <p className={styles.subtitle}>Modern Middle Eastern Dining & Lounge</p>
           <Link href="/menu" className={styles.cta}>
             Explore Menu

@@ -1,16 +1,32 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import styles from './Navbar.module.css';
 
-export default function Navbar() {
+interface NavbarProps {
+  initialLogo?: string | null;
+}
+
+export default function Navbar({ initialLogo }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <nav className={styles.navbar}>
       <Link href="/" className={styles.logo} onClick={() => setIsOpen(false)}>
-        RANOOSH
+        {initialLogo ? (
+          <Image 
+            src={initialLogo} 
+            alt="Ranoosh Logo" 
+            width={180} 
+            height={50} 
+            style={{ objectFit: 'contain', maxHeight: '50px' }} 
+            priority
+          />
+        ) : (
+          "RANOOSH"
+        )}
       </Link>
       <div className={`${styles.hamburger} ${isOpen ? styles.hamburgerOpen : ''}`} onClick={() => setIsOpen(!isOpen)}>
         <span></span>

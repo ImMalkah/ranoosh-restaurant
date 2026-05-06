@@ -15,6 +15,13 @@ export const revalidate = 0; // Disable static caching so it always fetches fres
 export default async function CateringPage() {
   const supabase = await createClient();
 
+  // Fetch settings
+  const { data: settings } = await supabase.from('site_settings').select('key, value');
+  const cateringHeroImage = settings?.find((s) => s.key === 'catering_hero_image')?.value || '/catering-hero.jpg';
+  const cateringVideo = settings?.find((s) => s.key === 'catering_video')?.value || '/catering-video.mp4';
+  const cateringText = settings?.find((s) => s.key === 'catering_text')?.value || "Whether it's a family gathering, wedding, or corporate event, we prepare fresh, flavorful dishes that bring people together. Enjoy the taste of tradition with every bite.";
+  const cateringArabicText = settings?.find((s) => s.key === 'catering_arabic_text')?.value || "مستعدون لتجهيز جميع المناسبات\nأكلات عراقية أصيلة، منسف القوزي و الدولمة والتبولة إلى المشاوي وطبعا المسكوف العراقي والأطباق الرئيسية\nللطلب والاستفسار: تواصل ويانا";
+
   // Fetch categories
   const { data: categories, error: catError } = await supabase
     .from('catering_categories')
@@ -46,7 +53,7 @@ export default async function CateringPage() {
       <section className={cateringStyles.heroSection}>
         <div className={cateringStyles.heroBackground}>
           <Image 
-            src="/catering-hero.jpg" 
+            src={cateringHeroImage} 
             alt="Delicious Catering Spread" 
             fill 
             style={{ objectFit: 'cover' }} 
@@ -56,13 +63,11 @@ export default async function CateringPage() {
         </div>
         <div className={cateringStyles.heroContent}>
           <h1 className={cateringStyles.heroTitle}>Let Us Cater Your Next Event</h1>
-          <p className={cateringStyles.heroText}>
-            Whether it's a family gathering, wedding, or corporate event, we prepare fresh, flavorful dishes that bring people together. Enjoy the taste of tradition with every bite.
+          <p className={cateringStyles.heroText} style={{ whiteSpace: 'pre-wrap' }}>
+            {cateringText}
           </p>
-          <p className={cateringStyles.heroArabicText}>
-            مستعدون لتجهيز جميع المناسبات<br/>
-            أكلات عراقية أصيلة، منسف القوزي و الدولمة والتبولة إلى المشاوي وطبعا المسكوف العراقي والأطباق الرئيسية<br/>
-            للطلب والاستفسار: تواصل ويانا
+          <p className={cateringStyles.heroArabicText} style={{ whiteSpace: 'pre-wrap' }}>
+            {cateringArabicText}
           </p>
           <a href="/contact" className={cateringStyles.contactButton}>Contact Us</a>
         </div>
@@ -70,7 +75,7 @@ export default async function CateringPage() {
 
       <section className={cateringStyles.videoSection}>
         <video 
-          src="/catering-video.mp4" 
+          src={cateringVideo} 
           controls 
           autoPlay 
           loop 

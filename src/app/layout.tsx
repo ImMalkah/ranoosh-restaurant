@@ -3,6 +3,7 @@ import { Outfit, Cinzel } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import "./globals.css";
+import { createClient } from '@/utils/supabase/server';
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -39,15 +40,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data } = await supabase.from('site_settings').select('value').eq('key', 'navbar_logo').maybeSingle();
+  const logoUrl = data?.value || null;
+
   return (
     <html lang="en" className={`${outfit.variable} ${cinzel.variable}`}>
       <body>
-        <Navbar />
+        <Navbar initialLogo={logoUrl} />
         <main>{children}</main>
         <Footer />
       </body>
