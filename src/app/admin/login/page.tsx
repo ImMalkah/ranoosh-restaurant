@@ -17,7 +17,7 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setMessage('')
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -25,9 +25,18 @@ export default function LoginPage() {
     if (error) {
       setMessage(error.message)
       setLoading(false)
-    } else {
+    } else if (data?.user) {
       // Check if approved
-      const { data: profile } = await supabase.from('profiles').select('status').single();
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('status')
+        .eq('id', data.user.id)
+        .single();
+        
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
+      }
+
       if (profile?.status !== 'approved') {
         setMessage('Your account has not been approved yet.')
         await supabase.auth.signOut()
