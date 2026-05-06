@@ -42,8 +42,7 @@ export default function LoginPage() {
         await supabase.auth.signOut()
         setLoading(false)
       } else {
-        router.refresh()
-        router.push('/admin')
+        window.location.href = '/admin'
       }
     }
   }
