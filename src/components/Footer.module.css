@@ -32,6 +32,32 @@
   margin-top: 4rem;
   padding-top: 2rem;
   border-top: 1px solid var(--glass-border);
+}
+
+.bottomContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
   color: #71717a;
   font-size: 0.85rem;
+}
+
+.adminLink {
+  color: #71717a;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.adminLink:hover {
+  color: var(--primary-gold);
+}
+
+@media (max-width: 768px) {
+  .bottomContent {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
 }

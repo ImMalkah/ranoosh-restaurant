@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import styles from './Footer.module.css';
 
 export default function Footer() {
@@ -18,7 +19,12 @@ export default function Footer() {
         </div>
       </div>
       <div className={styles.bottom}>
-        &copy; {new Date().getFullYear()} Ranoosh Restaurant & Lounge. All rights reserved.
+        <div className={styles.bottomContent}>
+          <Link href="/admin" className={styles.adminLink}>Admin</Link>
+          <span className={styles.copyright}>
+            &copy; {new Date().getFullYear()} Ranoosh Restaurant & Lounge. All rights reserved.
+          </span>
+        </div>
       </div>
     </footer>
   );
