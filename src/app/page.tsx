@@ -25,7 +25,7 @@ export default async function Home() {
       <section className={styles.about} id="about">
         <h2 className={styles.aboutTitle}>A Taste of Tradition</h2>
         <p className={styles.aboutText}>
-          Step into Ranoosh and immerse yourself in an ambiance where modern dining meets the rich heritage of the Middle East. Experience our extensive menu featuring deeply flavorful shawarmas, authentic kabab combination plates, comforting appetizers, and an array of indulgent desserts like Kunafe and premium Cheesecake. After your meal, unwind in our sophisticated lounge over our shisha selection and refreshing signature drinks.
+          Step into Rannosh and immerse yourself in an ambiance where modern dining meets the rich heritage of the Middle East. Experience our extensive menu featuring deeply flavorful shawarmas, authentic kabab combination plates, comforting appetizers, and an array of indulgent desserts like Kunafe and premium Cheesecake. After your meal, unwind in our sophisticated lounge over our shisha selection and refreshing signature drinks.
         </p>
       </section>
 
